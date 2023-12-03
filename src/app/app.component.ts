@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {
+  BufferAttribute,
   BufferGeometry,
   Clock,
   Color,
@@ -15,6 +16,7 @@ import {
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {Ball} from './objects/ball';
 import {FlipperTable} from "./objects/flipper-table";
+import { vertices } from './helper/utils';
 
 @Component({
   selector: 'app-root',
@@ -31,8 +33,6 @@ export class AppComponent implements AfterViewInit {
   private renderer!: WebGLRenderer;
   private ball = new Ball();
   private flipperTable = new FlipperTable();
-  private line!: Line;
-  private i = 0;
   private controls!: OrbitControls;
   private clock = new Clock();
 
@@ -64,14 +64,13 @@ export class AppComponent implements AfterViewInit {
    * @memberof CubeComponent
    */
   private createScene = () => {
-    // Objects
-    this.line = AppComponent.buildLine();
 
     // Scene
     this.scene.background = new Color(0xd4d4d8);
+
+    // Objects
     this.scene.add(this.flipperTable.mesh);
     this.scene.add(this.ball.mesh);
-    // this.scene.add(this.line);
 
     // Renderer
     this.renderer = new WebGLRenderer({canvas: this.canvas, antialias: true});
@@ -91,9 +90,10 @@ export class AppComponent implements AfterViewInit {
 
     this.controls.update();
 
-    const delta = this.clock.getDelta();
-    this.ball.speed = this.ball.speed + (9.81 * delta);
-    this.ball.mesh.position.y -= this.ball.speed * delta;
+    const deltaT = this.clock.getDelta();
+
+    this.ball.simulate(deltaT);
+    this.ball.handleObstacleCollision(vertices(this.flipperTable.mesh.geometry.attributes['position'] as BufferAttribute));
   };
 
 }

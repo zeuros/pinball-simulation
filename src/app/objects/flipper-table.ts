@@ -1,8 +1,12 @@
 import {Mesh, MeshBasicMaterial, Shape, ShapeGeometry, SplineCurve, Vector2} from "three";
+import { lines, vertices } from "../helper/utils";
 
 export class FlipperTable {
 
-  tableShape = new Shape()
+  points: Vector2[];
+
+  constructor(
+    public tableShape = new Shape()
     .setFromPoints([
       new Vector2(-5, -10),
       new Vector2(-5, 7),
@@ -17,15 +21,19 @@ export class FlipperTable {
       ]).getPoints(50),
       new Vector2(5, 7),
       new Vector2(5, -10),
-    ]);
+    ]),
+    public geometry = new ShapeGeometry(tableShape, 50),
+    public material = new MeshBasicMaterial({color: 0xC3F73A}),
+    public mesh = new Mesh(geometry, material),
 
-  geometry = new ShapeGeometry(this.tableShape, 50);
-  material = new MeshBasicMaterial({color: 0xC3F73A});
-  mesh = new Mesh(this.geometry, this.material);
+    // Physics
+    public speed = 0,
+    public direction = new Vector2(),
+  ) {
 
-  // Physics
-  speed = 0;
-  direction = new Vector2();
+    this.points = tableShape.extractPoints(1).shape;
+    debugger
 
+  }
 
 }
